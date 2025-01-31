@@ -2,14 +2,37 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+import dotenv from "dotenv";
+dotenv.config();
 
-mongoose.connect(
-  "mongodb+srv://tobimartin441:Goodmother1@cluster0.rn975.mongodb.net/"
-);
+const connectionString = process.env.ATLAS_URI || ""; // Get the connection string from the environment variable
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+/**
+ * Creates a new MongoClient instance with the specified connection string and options.
+ * 
+ * @constant {MongoClient} client - The MongoClient instance used to connect to the MongoDB server.
+ * @param {string} connectionString - The connection string for the MongoDB server.
+ * @param {object} options - The options for the MongoClient.
+ * @param {object} options.serverApi - The server API version and settings.
+ * @param {string} options.serverApi.version - The version of the server API to use.
+ * @param {boolean} options.serverApi.strict - Enables strict mode for the server API.
+ * @param {boolean} options.serverApi.deprecationErrors - Enables deprecation errors for the server API.
+ */
+const client = new MongoClient(connectionString, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+let conn; // Declare a variable to hold the connection object
 try {
-  console.log("Connected to the database");
-} catch (error) {
-  console.log(error);
+  conn = await client.connect(); // Connect to the MongoDB cluster
+  console.log("mongo connected"); // Log a message
+} catch (e) {
+  console.error(e); // Log an error if unable to connect
 }
 
 const app = express();
